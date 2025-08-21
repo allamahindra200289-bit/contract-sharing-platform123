@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Sharing Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .contract-list {
+            margin-top: 20px;
+        }
+        .contract-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Contract Sharing Platform</h1>
+        <p>Upload and share contracts securely</p>
+    </div>
+
+    <div class="upload-section">
+        <h2>Upload a Contract</h2>
+        <form id="upload-form">
+            <div>
+                <label for="contract-title">Contract Title:</label>
+                <input type="text" id="contract-title" required>
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="contract-file">Select File:</label>
+                <input type="file" id="contract-file" required>
+            </div>
+            <button type="submit" style="margin-top: 15px;">Upload Contract</button>
+        </form>
+    </div>
+
+    <div class="contract-list">
+        <h2>Available Contracts</h2>
+        <div id="contracts-container">
+            <!-- Contracts will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // We'll add JavaScript functionality later
+        console.log("Contract Sharing Platform Loaded");
+    </script>
+</body>
+</html>
