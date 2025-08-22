@@ -3,248 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contract Sharing Platform</title>
+    <title>Contract Sharing Platform - Test</title>
+    <!-- Load Supabase library first -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .contract-list {
-            margin-top: 20px;
-        }
-        .contract-item {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .upload-section {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .notification {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            display: none;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .debug-info {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-    </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Contract Sharing Platform</h1>
-        <p>Upload and share contracts securely</p>
-    </div>
-    <div class="notification" id="notification"></div>
-    <div class="upload-section">
-        <h2>Upload a Contract</h2>
-        <form id="upload-form">
-            <div class="form-group">
-                <label for="contract-title">Contract Title:</label>
-                <input type="text" id="contract-title" required>
-            </div>
-            <div class="form-group">
-                <label for="contract-file">Select File:</label>
-                <input type="file" id="contract-file" required>
-            </div>
-            <button type="submit">Upload Contract</button>
-        </form>
-    </div>
-    <div class="contract-list">
-        <h2>Available Contracts</h2>
-        <div id="contracts-container">
-            <!-- Contracts will be displayed here -->
-        </div>
-    </div>
+    <h1>Contract Sharing Platform - Test</h1>
     
-    <div class="debug-info" id="debug-info">
-        Debug info will appear here...
-    </div>
-
+    <div id="status">Initializing...</div>
+    
+    <form id="upload-form">
+        <div>
+            <label for="contract-title">Contract Title:</label>
+            <input type="text" id="contract-title" required>
+        </div>
+        <div>
+            <label for="contract-file">Select File:</label>
+            <input type="file" id="contract-file" required>
+        </div>
+        <button type="submit">Upload Contract</button>
+    </form>
+    
+    <div id="contracts-list"></div>
+    
     <script>
-        // Initialize Supabase
-        const supabaseUrl = 'https://eufjbplrkntdmjttwvju.supabase.co';
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmpicGxya250ZG1qdHR3dmp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MDUyMTYsImV4cCI6MjA3MTM4MTIxNn0.OWuk3OWIGSjwHv-HJJr6draSL0EAdjzQSHw1ZCLt6B0';
-        const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
-        
-        const debugInfo = document.getElementById('debug-info');
-        
-        // Function to update debug info
-        function updateDebugInfo(message) {
-            debugInfo.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
-        }
-        
-        // Function to show notifications
-        function showNotification(message, isError = false) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = isError ? 'notification error' : 'notification success';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Function to upload a contract
-        async function uploadContract(event) {
-            event.preventDefault();
-            updateDebugInfo("Starting upload process...");
-            
-            const title = document.getElementById('contract-title').value;
-            const file = document.getElementById('contract-file').files[0];
-            
-            if (!title || !file) {
-                showNotification('Please provide a title and select a file', true);
-                updateDebugInfo("Error: Missing title or file");
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Supabase is loaded
+            if (typeof supabase === 'undefined') {
+                document.getElementById('status').textContent = 'Error: Supabase library not loaded';
+                console.error('Supabase library not loaded');
                 return;
             }
             
-            updateDebugInfo(`Uploading file: ${file.name} (${file.size} bytes)`);
+            // Initialize Supabase
+            const supabaseUrl = 'https://eufjbplrkntdmjttwvju.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmpicGxya250ZG1qdHR3dmp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MDUyMTYsImV4cCI6MjA3MTM4MTIxNn0.OWuk3OWIGSjwHv-HJJr6draSL0EAdjzQSHw1ZCLt6B0';
+            const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
             
-            // Upload file to Supabase storage
-            const fileName = `${Date.now()}_${file.name}`;
-            updateDebugInfo(`Generated filename: ${fileName}`);
+            const statusDiv = document.getElementById('status');
+            const contractsList = document.getElementById('contracts-list');
             
-            const { data, error } = await supabase.storage
-                .from('contracts')
-                .upload(fileName, file);
+            function updateStatus(message) {
+                statusDiv.textContent = message;
+                console.log(message);
+            }
+            
+            // Test connection
+            async function testConnection() {
+                updateStatus("Testing Supabase connection...");
                 
-            if (error) {
-                console.error('Error uploading file:', error);
-                showNotification('Error uploading file: ' + error.message, true);
-                updateDebugInfo(`Storage error: ${error.message}`);
-                return;
+                try {
+                    // Test storage
+                    const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+                    if (bucketError) {
+                        updateStatus(`Storage error: ${bucketError.message}`);
+                        return;
+                    }
+                    
+                    updateStatus(`Connected to Supabase. Found buckets: ${buckets.map(b => b.name).join(', ')}`);
+                    
+                    // Test database
+                    const { data: contracts, error: dbError } = await supabase
+                        .from('contracts')
+                        .select('*')
+                        .limit(1);
+                        
+                    if (dbError) {
+                        updateStatus(`Database error: ${dbError.message}`);
+                        return;
+                    }
+                    
+                    updateStatus("Database connection successful");
+                    fetchContracts();
+                } catch (err) {
+                    updateStatus(`Connection error: ${err.message}`);
+                }
             }
             
-            updateDebugInfo("File uploaded to storage successfully");
-            
-            // Get public URL
-            const { data: urlData } = supabase.storage
-                .from('contracts')
-                .getPublicUrl(fileName);
+            // Upload function
+            async function uploadContract(event) {
+                event.preventDefault();
+                updateStatus("Starting upload...");
                 
-            const fileUrl = urlData.publicUrl;
-            updateDebugInfo(`Generated public URL: ${fileUrl}`);
-            
-            // Save to database
-            const { data: insertData, error: insertError } = await supabase
-                .from('contracts')
-                .insert([
-                    { title: title, file_url: fileUrl }
-                ]);
+                const title = document.getElementById('contract-title').value;
+                const file = document.getElementById('contract-file').files[0];
                 
-            if (insertError) {
-                console.error('Error saving to database:', insertError);
-                showNotification('Error saving contract: ' + insertError.message, true);
-                updateDebugInfo(`Database error: ${insertError.message}`);
-                return;
-            }
-            
-            updateDebugInfo("Contract saved to database successfully");
-            showNotification('Contract uploaded successfully!');
-            document.getElementById('upload-form').reset();
-            fetchContracts();
-        }
-        
-        // Function to fetch contracts
-        async function fetchContracts() {
-            updateDebugInfo("Fetching contracts from database...");
-            
-            const { data, error } = await supabase
-                .from('contracts')
-                .select('*')
-                .order('created_at', { ascending: false });
+                if (!title || !file) {
+                    updateStatus("Please provide a title and select a file");
+                    return;
+                }
                 
-            if (error) {
-                console.error('Error fetching contracts:', error);
-                showNotification('Error loading contracts: ' + error.message, true);
-                updateDebugInfo(`Fetch error: ${error.message}`);
-                return;
+                try {
+                    // Upload to storage
+                    updateStatus("Uploading to storage...");
+                    const fileName = `${Date.now()}_${file.name}`;
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('contracts')
+                        .upload(fileName, file);
+                        
+                    if (uploadError) {
+                        updateStatus(`Storage upload error: ${uploadError.message}`);
+                        return;
+                    }
+                    
+                    updateStatus(`File uploaded: ${uploadData.path}`);
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('contracts')
+                        .getPublicUrl(fileName);
+                        
+                    const fileUrl = urlData.publicUrl;
+                    updateStatus(`Public URL: ${fileUrl}`);
+                    
+                    // Save to database
+                    updateStatus("Saving to database...");
+                    const { data: insertData, error: insertError } = await supabase
+                        .from('contracts')
+                        .insert([
+                            { title: title, file_url: fileUrl }
+                        ]);
+                        
+                    if (insertError) {
+                        updateStatus(`Database insert error: ${insertError.message}`);
+                        return;
+                    }
+                    
+                    updateStatus("Upload successful!");
+                    document.getElementById('upload-form').reset();
+                    fetchContracts();
+                } catch (err) {
+                    updateStatus(`Upload error: ${err.message}`);
+                }
             }
             
-            updateDebugInfo(`Found ${data.length} contracts in database`);
-            
-            const container = document.getElementById('contracts-container');
-            container.innerHTML = '';
-            
-            if (data.length === 0) {
-                container.innerHTML = '<p>No contracts available yet. Upload one to get started!</p>';
-                return;
+            // Fetch contracts
+            async function fetchContracts() {
+                updateStatus("Fetching contracts...");
+                
+                const { data, error } = await supabase
+                    .from('contracts')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                    
+                if (error) {
+                    updateStatus(`Fetch error: ${error.message}`);
+                    return;
+                }
+                
+                updateStatus(`Found ${data.length} contracts`);
+                
+                contractsList.innerHTML = '<h2>Contracts:</h2>';
+                
+                if (data.length === 0) {
+                    contractsList.innerHTML += '<p>No contracts found</p>';
+                    return;
+                }
+                
+                data.forEach(contract => {
+                    contractsList.innerHTML += `
+                        <div>
+                            <h3>${contract.title}</h3>
+                            <a href="${contract.file_url}" target="_blank">View</a>
+                            <p>Uploaded: ${new Date(contract.created_at).toLocaleString()}</p>
+                        </div>
+                    `;
+                });
             }
             
-            data.forEach(contract => {
-                const contractDiv = document.createElement('div');
-                contractDiv.className = 'contract-item';
-                contractDiv.innerHTML = `
-                    <h3>${contract.title}</h3>
-                    <p><a href="${contract.file_url}" target="_blank">View Contract</a></p>
-                    <small>Uploaded: ${new Date(contract.created_at).toLocaleString()}</small>
-                `;
-                container.appendChild(contractDiv);
-            });
-        }
-        
-        // Set up event listeners
-        document.getElementById('upload-form').addEventListener('submit', uploadContract);
-        
-        // Initial fetch
-        updateDebugInfo("Initializing application...");
-        fetchContracts();
+            // Set up event listener
+            document.getElementById('upload-form').addEventListener('submit', uploadContract);
+            
+            // Test connection on load
+            testConnection();
+        });
     </script>
 </body>
 </html>
